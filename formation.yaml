@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Stack para criar uma VPC, subnet e 15 instâncias EC2 com Docker e rodar um contêiner específico.
+
+Mappings:
+  AWSRegionToAMI:
+    us-east-1:
+      AMI: ami-04a81a99f5ec58529
+    us-east-2:
+      AMI: ami-0862be96e41dcbf74
+    sa-east-1:
+      AMI: ami-080111c1449900431
+
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyVPC
+
+  MySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [ 0, !GetAZs ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MySubnet
+
+  MyInternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  MyGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyInternetGateway
+
+  MyRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: MyRouteTable
+
+  MyRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref MyRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref MyInternetGateway
+
+  MySubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref MySubnet
+      RouteTableId: !Ref MyRouteTable
+
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: "Permitir acesso HTTP"
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  EC2LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !FindInMap 
+        - AWSRegionToAMI
+        - !Ref "AWS::Region"
+        - AMI
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: MySecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 20
+            VolumeType: gp2
+            DeleteOnTermination: true
+      UserData: 
+        Fn::Base64: 
+          !Sub |
+            #!/bin/bash
+            sudo apt update && sudo apt upgrade -y
+            sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            sudo apt update && sudo apt install -y docker-ce
+            sudo usermod -aG docker ubuntu
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            sudo docker pull pablorlv/inteli-exec:latest
+            sudo docker run -d --restart unless-stopped -p 80:8501 pablorlv/inteli-exec
+
+  EC2Instances:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref MySubnet
+      LaunchConfigurationName: 
+        Ref: EC2LaunchConfig
+      MinSize: 15
+      MaxSize: 15
+      DesiredCapacity: 15
