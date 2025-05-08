@@ -43,7 +43,7 @@ def get_features_and_target(data):
         if exclusive & has_target:
             col2.write("✅ Sua escolha de covariáveis e alvo estão boas.\n\n Pode ir em frente com o treino.")
             X, y = df[features], df[target[0]]
-            
+
         else:
             col2.write("❌ Garanta que você escolheu apenas um alvo e que ele não faça parte das variáveis de treino!")
     return X, y
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     X_train, X_val = None, None
     df = st.file_uploader("Envie seu arquivo para treino", type=['xlsx'], accept_multiple_files=False)
     X, y = get_features_and_target(df)
-    
+
     if X is not None:
         st.session_state['has_data'] = True
         X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3, stratify=y, random_state=123)
@@ -68,26 +68,26 @@ if __name__ == '__main__':
     model_choice = st.selectbox(label="Selecione o modelo para treinar",
                             options=["Selecionar..."] + [val for key, val in ModelTypes.__dict__.items() if not key.startswith('__')],
                             index=0)
-    
+
     match model_choice:
         case ModelTypes.LOG_REG:
             base_model = LogisticRegression(class_weight='balanced', penalty='l1', C=0.01, solver='liblinear')
 
-        case ModelTypes.LGBM:
-            from lightgbm import LGBMClassifier
-            base_model = LGBMClassifier(n_estimators=300, learning_rate=0.007, reg_alpha=0.5, reg_lambda=0.5,  random_state=123)
-            # model = LGBMClassifier(n_estimators=125, learning_rate=0.08, colsample_bytree=0.9, min_child_weight=1, subsample=0.8)
+        # case ModelTypes.LGBM:
+        #     from lightgbm import LGBMClassifier
+        #     base_model = LGBMClassifier(n_estimators=300, learning_rate=0.007, reg_alpha=0.5, reg_lambda=0.5,  random_state=123)
+        #     # model = LGBMClassifier(n_estimators=125, learning_rate=0.08, colsample_bytree=0.9, min_child_weight=1, subsample=0.8)
 
         # case ModelTypes.KNN:
         #     from sklearn.neighbors import KNeighborsClassifier
         #     base_model = KNeighborsClassifier(n_neighbors=300, weights='uniform', n_jobs=3)
 
-        case ModelTypes.XGB:
-            from xgboost import XGBClassifier
-            # https://analytics-nuts.github.io/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults/
-            base_model = XGBClassifier(learning_rate=0.08, n_estimators=125, max_depth=6, colsample_bytree=0.9,gamma=0.5,
-                                  min_child_weight=1,subsample=0.8)
-            
+        # case ModelTypes.XGB:
+        #     from xgboost import XGBClassifier
+        #     # https://analytics-nuts.github.io/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults/
+        #     base_model = XGBClassifier(learning_rate=0.08, n_estimators=125, max_depth=6, colsample_bytree=0.9,gamma=0.5,
+        #                           min_child_weight=1,subsample=0.8)
+
         case ModelTypes.ANN:
             from sklearn.neural_network import MLPClassifier
             base_model = MLPClassifier((4, 8, 4), random_state=123)
@@ -100,10 +100,10 @@ if __name__ == '__main__':
             print("Selecione seus dados antes de treinar o modelo")
         else:
             model = Pipeline([
-                ('auto_woe_encoder', AutoWOEEncoder()),  
+                ('auto_woe_encoder', AutoWOEEncoder()),
                 ('scaler', StandardScaler().set_output(transform="pandas")),
                 ('model', base_model)
-                # ('beta_calibrated_classifier', BetaCalibratedClassifier(base_estimator=base_model)) 
+                # ('beta_calibrated_classifier', BetaCalibratedClassifier(base_estimator=base_model))
             ])
 
             fit = st.button("Treinar modelo (pode levar alguns minutos)")
@@ -129,7 +129,7 @@ if __name__ == '__main__':
             ks_teste = met.ks_score(y_val, y_probs)
             roc_auc_train = met.roc_auc(y_train, y_probs_treino)
             ks_train = met.ks_score(y_train, y_probs_treino)
-            
+
             col1, col2 = st.columns(2)
 
             col1.metric(label="ROC AUC (teste)", value=f"{round(roc_auc_teste, 4)}")
@@ -152,7 +152,7 @@ if __name__ == '__main__':
                                         mode='lines',
                                         name='ROC (Train)',
                                         hovertemplate='FPR: %{x}, TPR: %{y} <extra></extra>'))
-            
+
             fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1],
                                         mode='lines',
                                         line=dict(dash='dot'),
@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
             # show precision and recalls
             fpr, fnr, thresh = met.false_positive_negative_rates(y_val, y_probs)
-            
+
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=thresh.round(3), y=fpr.round(3),
                                         mode='lines',
@@ -207,14 +207,14 @@ if __name__ == '__main__':
             # st.dataframe(df_pred)
 
             # Analise de interpretabilidade
-            
+
 
             if model_choice == ModelTypes.LOG_REG:
                 col1.write("Interpretabilidade do modelo (somente disponível para reg. log.)")
                 # coefs = model['beta_calibrated_classifier'].base_estimator.coef_
                 coefs = model['model'].coef_
-                aux = pd.DataFrame({'var': X_train.columns, 'coef': coefs[0]}).sort_values('coef', ascending=True).reset_index(drop=True) 
-                
+                aux = pd.DataFrame({'var': X_train.columns, 'coef': coefs[0]}).sort_values('coef', ascending=True).reset_index(drop=True)
+
                 fig, ax = plt.subplots(figsize=(5,6))
                 ax.barh(aux.index, aux['coef'])
                 ax.set_yticks(aux.index, aux['var'])
@@ -228,7 +228,7 @@ if __name__ == '__main__':
             #     clf = model['beta_calibrated_classifier'].base_estimator
             #     mini_pipeline = make_pipeline(model['auto_woe_encoder'], model['scaler'])
             #     X_test_ = mini_pipeline.transform(X_val)
-                
+
 
             #     explainer = shap.TreeExplainer(clf)
             #     shap_values = explainer.shap_values(X_test_)
@@ -236,7 +236,7 @@ if __name__ == '__main__':
 
             #     if model_choice == ModelTypes.LGBM:
             #         shap.summary_plot(shap_values[0], X_test_, feature_names=X_train.columns, max_display=15, show=False)
-                
+
             #     if model_choice == ModelTypes.XGB:
             #         shap.summary_plot(shap_values, X_test_, feature_names=X_train.columns, max_display=15, show=False)
 

@@ -36,7 +36,7 @@ def upload_file_to_s3(df, company_name, file_name):
         Key=f'{company_name}/{file_name}.xlsx'
     )
     st.write("O upload do arquivo foi realizado com sucesso!")
-    
+
 if  st.session_state.get('is_fit') is None:
     st.write("Você precisa treinar um modelo antes")
     st.write("### Importante! \n As features devem ser *exatamente* as mesmas usadas para treino")
@@ -51,7 +51,7 @@ else:
             df_pred = X_val.copy()
             df_pred['Prediction'] = model.predict_proba(X_val)[:,1]
             st.dataframe(df_pred.head(30))
-            company_name = st.selectbox("Qual o nome da sua empresa?", ["BTG", "Ambev", "Outra"], index=None)
+            company_name = st.selectbox("Qual o nome da sua empresa?", ["Stone", "Ovo", "Inteli", "Renova", "Pine", "KPMG", "Base Comunica", "Estapar", "AG Antecipa", "SINPETRO MS", "Outra"], index=None)
             file_name = st.text_input("Insira o nome que deseja fornecer ao arquivo", "")
             if file_name != "" and company_name != None:
                 upload_button = st.button("Realizar upload")

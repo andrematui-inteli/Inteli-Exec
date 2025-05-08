@@ -11,7 +11,7 @@ def set_page_config():
         layout="wide",
         initial_sidebar_state="expanded",
         menu_items={
-            "Get help": "mailto:Alessandro.Gagliardi@br.experian.com",
+            "Get help": "mailto:jordan.piva@inteli.edu.br",
             "About": """Página construída para curso de dados do Inteli (2023)"""
         }
     )
