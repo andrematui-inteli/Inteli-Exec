@@ -32,7 +32,7 @@ def upload_file_to_s3(df, company_name, file_name):
     s3_client = boto3.client('s3')
     s3_client.upload_fileobj(
         excel_buffer,
-        Bucket='inteli-exec-bucket',
+        Bucket='inteli-exec-dados',
         Key=f'{company_name}/{file_name}.xlsx'
     )
     st.write("O upload do arquivo foi realizado com sucesso!")
