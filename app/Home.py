@@ -14,7 +14,7 @@ st.write("# Inteli Exec - Treinamento de modelos de machine learning")
 st.markdown(
     """
     Esta página contém conteúdos específicos para o Módulo 3:
-    
+
     * Dados para download
     * Interface para treino de modelos de machine learning
 

@@ -26,16 +26,29 @@ def to_excel(df):
         return processed_data
 
 def upload_file_to_s3(df, company_name, file_name):
-    excel_buffer = io.BytesIO()
-    df.to_excel(excel_buffer, index=False, engine='openpyxl')
-    excel_buffer.seek(0)
-    s3_client = boto3.client('s3')
-    s3_client.upload_fileobj(
-        excel_buffer,
-        Bucket='inteli-exec-dados',
-        Key=f'{company_name}/{file_name}.xlsx'
-    )
-    st.write("O upload do arquivo foi realizado com sucesso!")
+    try:
+        excel_buffer = io.BytesIO()
+        df.to_excel(excel_buffer, index=False, engine='openpyxl')
+        excel_buffer.seek(0)
+        s3_client = boto3.client('s3')
+        s3_client.upload_fileobj(
+            excel_buffer,
+            Bucket='inteli-exec-dados',
+            Key=f'{company_name}/{file_name}.xlsx'
+        )
+        st.write("O upload do arquivo foi realizado com sucesso!")
+    except Exception as e:
+        st.error(f"Ocorreu um erro durante o upload para o S3: {e}")
+        st.info("Você pode baixar a planilha gerada abaixo:")
+        excel_buffer_download = io.BytesIO()
+        df.to_excel(excel_buffer_download, index=False, engine='openpyxl')
+        excel_buffer_download.seek(0)
+        st.download_button(
+            label="Baixar Planilha",
+            data=excel_buffer_download,
+            file_name=f'{file_name}.xlsx',
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
 if  st.session_state.get('is_fit') is None:
     st.write("Você precisa treinar um modelo antes")
@@ -51,7 +64,7 @@ else:
             df_pred = X_val.copy()
             df_pred['Prediction'] = model.predict_proba(X_val)[:,1]
             st.dataframe(df_pred.head(30))
-            company_name = st.selectbox("Qual o nome da sua empresa?", ["Stone", "Ovo", "Inteli", "Renova", "Pine", "KPMG", "Base Comunica", "Estapar", "AG Antecipa", "SINPETRO MS", "Outra"], index=None)
+            company_name = st.selectbox("Qual o nome da sua empresa?", ["Inteli Exec", "Outra"], index=None)
             file_name = st.text_input("Insira o nome que deseja fornecer ao arquivo", "")
             if file_name != "" and company_name != None:
                 upload_button = st.button("Realizar upload")

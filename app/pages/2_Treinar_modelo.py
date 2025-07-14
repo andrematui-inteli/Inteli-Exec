@@ -9,7 +9,7 @@ from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
 import os
-# import shap
+import shap
 import messages as msn
 import metrics as met
 from models import ModelTypes, AutoWOEEncoder, BetaCalibratedClassifier
@@ -73,10 +73,10 @@ if __name__ == '__main__':
         case ModelTypes.LOG_REG:
             base_model = LogisticRegression(class_weight='balanced', penalty='l1', C=0.01, solver='liblinear')
 
-        # case ModelTypes.LGBM:
-        #     from lightgbm import LGBMClassifier
-        #     base_model = LGBMClassifier(n_estimators=300, learning_rate=0.007, reg_alpha=0.5, reg_lambda=0.5,  random_state=123)
-        #     # model = LGBMClassifier(n_estimators=125, learning_rate=0.08, colsample_bytree=0.9, min_child_weight=1, subsample=0.8)
+        case ModelTypes.LGBM:
+            from lightgbm import LGBMClassifier
+            base_model = LGBMClassifier(n_estimators=300, learning_rate=0.007, reg_alpha=0.5, reg_lambda=0.5,  random_state=123)
+            # model = LGBMClassifier(n_estimators=125, learning_rate=0.08, colsample_bytree=0.9, min_child_weight=1, subsample=0.8)
 
         # case ModelTypes.KNN:
         #     from sklearn.neighbors import KNeighborsClassifier

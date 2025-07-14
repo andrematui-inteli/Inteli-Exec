@@ -9,7 +9,7 @@ from beta_calibration import BetaCalibration
 
 class ModelTypes:
     LOG_REG = 'Regressão Logística'
-    # LGBM = 'LightGBM'
+    LGBM = 'LightGBM'
     ANN = 'Rede Neural'
     # KNN = 'kNN'
     # XGB = 'XGBoost'
