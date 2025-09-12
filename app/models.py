@@ -11,8 +11,8 @@ class ModelTypes:
     LOG_REG = 'Regressão Logística'
     LGBM = 'LightGBM'
     ANN = 'Rede Neural'
-    # KNN = 'kNN'
-    # XGB = 'XGBoost'
+    KNN = 'kNN'  
+    XGB = 'XGBoost'
 
 
 class AutoWOEEncoder(BaseEstimator, TransformerMixin):

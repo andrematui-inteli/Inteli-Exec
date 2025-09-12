@@ -6,9 +6,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import messages as msn
-import models
-import metrics as met
 
 from PIL import Image
 
@@ -33,7 +33,7 @@ Seu objetivo será de estudar as variáveis no treino, construir variáveis nova
 Com isso, poderá obter os scores (probabilidade de inadimplência) para a base de teste.
 """)
     # Carregar o arquivo zip
-    zip_path = "zip/Train_test_files_excel.zip"
+    zip_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'zip', 'Train_test_files_excel.zip'))
 
     # Abrir o arquivo zip em modo binário
     with open(zip_path, "rb") as f:

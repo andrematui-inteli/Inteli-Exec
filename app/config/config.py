@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 def set_page_config():
+    icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'inteli_logo.png'))
     st.set_page_config(
         page_title="Inteli Exec",
-        page_icon=Image.open(os.path.join('assets', 'inteli_logo.png')),
+        page_icon=Image.open(icon_path),
         layout="wide",
         initial_sidebar_state="expanded",
         menu_items={
