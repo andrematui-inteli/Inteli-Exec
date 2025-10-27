@@ -292,7 +292,7 @@ else:
                     st.dataframe(df_pred.head(30))
 
                     # Opção para download
-                    file_name = st.text_input("Insira o nome que deseja fornecer ao arquivo", "base_scorada")
+                    file_name = st.text_input("Insira o nome que deseja fornecer ao arquivo (Pressione Enter para confirmar)", "base_scorada")
 
                     # Botão para download do arquivo com predições
                     excel_data = to_excel(df_pred)

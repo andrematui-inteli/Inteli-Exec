@@ -181,65 +181,65 @@ def display_model_history():
     display_metrics_explanation()
 
     # Gráfico comparativo de modelos (apenas se houver mais de um modelo)
-    if len(df_history) > 1:
-        st.write("### 📈 Comparação de Performance")
-
-        # Cria um gráfico interativo com Plotly
-        fig = go.Figure()
-
-        # Adiciona linha para ROC AUC Teste
-        fig.add_trace(go.Scatter(
-            x=list(range(len(df_history))),
-            y=df_history['roc_auc_test'],
-            mode='lines+markers',
-            name='ROC AUC (Teste)',
-            text=df_history['model_name'],
-            hovertemplate='%{text}<br>ROC AUC: %{y:.4f}<extra></extra>'
-        ))
-
-        # Adiciona linha para KS Teste (eixo Y secundário)
-        fig.add_trace(go.Scatter(
-            x=list(range(len(df_history))),
-            y=df_history['ks_test'],
-            mode='lines+markers',
-            name='KS Score (Teste)',
-            yaxis='y2',  # Usar segundo eixo Y
-            text=df_history['model_name'],
-            hovertemplate='%{text}<br>KS: %{y:.2f}<extra></extra>'
-        ))
-
-        # Calcula o intervalo de valores do KS Score para aplicar o offset
-        ks_min = df_history['ks_test'].min()
-        ks_max = df_history['ks_test'].max()
-
-        # Adiciona um pequeno offset (ex: 0.05) para evitar sobreposição
-        ks_offset_min = max(0, ks_min - 0.05)  # Garante que o valor não seja negativo
-        ks_offset_max = min(1, ks_max + 0.05)  # Garante que o valor não passe de 1
-
-        # Configuração do layout com dois eixos Y
-        fig.update_layout(
-            template="plotly_dark",
-            title="Evolução da Performance dos Modelos",
-            xaxis_title='Ordem de Treinamento',
-            yaxis=dict(title='ROC AUC', side='left'),
-            # Eixo Y secundário com offset
-            yaxis2=dict(
-                title='KS Score',
-                side='right',
-                overlaying='y',
-                range=[ks_offset_min, ks_offset_max]  # Aplica o offset aqui
-            ),
-            legend=dict(
-                orientation="h",
-                y=-0.2,
-                x=0.5,
-                xanchor="center",
-                yanchor="top"
-            )
-        )
-
-        # Exibe o gráfico de comparação
-        st.plotly_chart(fig, use_container_width=True)
+    # if len(df_history) > 1:
+    #     st.write("### 📈 Comparação de Performance")
+    #
+    #     # Cria um gráfico interativo com Plotly
+    #     fig = go.Figure()
+    #
+    #     # Adiciona linha para ROC AUC Teste
+    #     fig.add_trace(go.Scatter(
+    #         x=list(range(len(df_history))),
+    #         y=df_history['roc_auc_test'],
+    #         mode='lines+markers',
+    #         name='ROC AUC (Teste)',
+    #         text=df_history['model_name'],
+    #         hovertemplate='%{text}<br>ROC AUC: %{y:.4f}<extra></extra>'
+    #     ))
+    #
+    #     # Adiciona linha para KS Teste (eixo Y secundário)
+    #     fig.add_trace(go.Scatter(
+    #         x=list(range(len(df_history))),
+    #         y=df_history['ks_test'],
+    #         mode='lines+markers',
+    #         name='KS Score (Teste)',
+    #         yaxis='y2',  # Usar segundo eixo Y
+    #         text=df_history['model_name'],
+    #         hovertemplate='%{text}<br>KS: %{y:.2f}<extra></extra>'
+    #     ))
+    #
+    #     # Calcula o intervalo de valores do KS Score para aplicar o offset
+    #     ks_min = df_history['ks_test'].min()
+    #     ks_max = df_history['ks_test'].max()
+    #
+    #     # Adiciona um pequeno offset (ex: 0.05) para evitar sobreposição
+    #     ks_offset_min = max(0, ks_min - 0.05)  # Garante que o valor não seja negativo
+    #     ks_offset_max = min(1, ks_max + 0.05)  # Garante que o valor não passe de 1
+    #
+    #     # Configuração do layout com dois eixos Y
+    #     fig.update_layout(
+    #         template="plotly_dark",
+    #         title="Evolução da Performance dos Modelos",
+    #         xaxis_title='Ordem de Treinamento',
+    #         yaxis=dict(title='ROC AUC', side='left'),
+    #         # Eixo Y secundário com offset
+    #         yaxis2=dict(
+    #             title='KS Score',
+    #             side='right',
+    #             overlaying='y',
+    #             range=[ks_offset_min, ks_offset_max]  # Aplica o offset aqui
+    #         ),
+    #         legend=dict(
+    #             orientation="h",
+    #             y=-0.2,
+    #             x=0.5,
+    #             xanchor="center",
+    #             yanchor="top"
+    #         )
+    #     )
+    #
+    #     # Exibe o gráfico de comparação
+    #     st.plotly_chart(fig, use_container_width=True)
 
 def get_model_display_name(model_type):
     """
